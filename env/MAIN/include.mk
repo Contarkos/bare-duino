@@ -1,0 +1,3 @@
+# Specific file for MAIN
+
+INTEG_LOG_LEVEL = -DINTEGRATION_LOG_LEVEL=6
