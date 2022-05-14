@@ -77,21 +77,19 @@ hex: $(HEX)
 
 bin: $(BIN)
 
-lib: $(LIB)
-
-$(PRE_DIR)::
+$(PRE_DIR):
 	@echo "     MKDIR $@"
 	@mkdir -p $@
 
-$(OBJ_DIR)::
+$(OBJ_DIR):
 	@echo "     MKDIR $@"
 	@mkdir -p $@
 
-lib_dir::
+$(LIB_DIR):
 	@echo "     MKDIR $@"
-	@mkdir -p $(LIB_DIR)
+	@mkdir -p $@
 
-bin_dir::
+%_dir:
 	@echo "     MKDIR $@"
 	@mkdir -p $(BIN_DIR)
 
@@ -99,9 +97,11 @@ $(OBJ_C) $(OBJ_CXX): | $(OBJ_DIR)
 
 $(PRE_C) $(PRE_CXX): | $(PRE_DIR)
 
-$(HEX): $(BIN) | bin_dir
+$(LIB_DIR)/$(LIB): | $(LIB_DIR)
+
+$(HEX): | bin_dir
 	@echo "   OBJCOPY $@"
-	@$(CROSS_COMPILE)$(OBJCOPY) -O ihex -R .eeprom $(BIN_DIR)/$< $(BIN_DIR)/$@
+	@$(CROSS_COMPILE)$(OBJCOPY) -O ihex -R .eeprom $(BIN_DIR)/$(BIN) $(BIN_DIR)/$@
 
 $(BIN): $(OBJ_C) $(OBJ_CXX) | bin_dir
 	@echo "        LD $@"
@@ -126,7 +126,7 @@ $(PRE_DIR)/%.d: $(SRC_DIR)/%.cpp
 	@echo "       PRE $@"
 	@$(CROSS_COMPILE)$(CXX) $(INCLUDES) $(CPLUS_FLAGS) -MM $< > $@
 
-$(LIB_DIR)/$(LIB): $(OBJ_C) $(OBJ_CXX) | lib_dir
+$(LIB_DIR)/$(LIB): $(OBJ_C) $(OBJ_CXX)
 	@echo "        AR $@"
 	@$(CROSS_COMPILE)$(AR) rcs $(LIB_DIR)/$(LIB) $(OBJ_C) $(OBJ_CXX)
 

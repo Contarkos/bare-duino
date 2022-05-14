@@ -62,7 +62,7 @@ PATH_STRIP  = $(PATH_BINARY).stripped
 PATH_MAP    = $(PATH_BINARY:.bin=.map)
 PATH_HEX    = $(PATH_BINARY:.bin=.hex)
 
-OUTPUT_FILES = $(PATH_BINARY) $(PATH_MAP) $(PATH_HEX)
+OUTPUT_FILES = $(PATH_MAP) $(PATH_HEX)
 
 ##################################################
 # Compilation variables
@@ -100,9 +100,9 @@ export SUBDIR_DATA
 # Compilation rules
 
 all: $(OUTPUT_FILES) | /tftpboot/
-	@echo "   CP $<"
-	@cp    $(SUBDIR_MAIN)/bin/$(BIN) /tftpboot/
-	@cp    $(SUBDIR_MAIN)/bin/$(BIN) /media/sf_partage_vm/
+	@echo "        CP $(notdir $(PATH_HEX))"
+	@cp    $(PATH_HEX) /tftpboot/
+	@cp    $(PATH_HEX) /media/sf_partage_vm/
 	@echo "$(shell date)"
 	@echo "-----------------------------------"
 	@echo " Done"
@@ -122,7 +122,7 @@ all: $(OUTPUT_FILES) | /tftpboot/
 $(PATH_HEX): $(PATH_BINARY)
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk hex
 
-$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) | $(SUBDIR_MAIN)/bin
+$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) FORCE | $(SUBDIR_MAIN)/bin
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk bin
 	@#$(CROSS_COMPILE)$(CXX) $(OBJ_FILES_MAIN) $(LIBS_PATH) $(LIBS) -Xlinker -Map=$(PATH_MAP) -o $@
 
@@ -130,7 +130,7 @@ $(PATH_MAP): $(PATH_BINARY)
 	@echo "       MAP $@"
 
 # Get all the object files associated with the library being compiled
-%.a:
+%.a: FORCE
 	@$(MAKE) $(PARALLEL) -C $(subst /lib,,$(dir $@)) -f module.mk lib/$(notdir $@)
 	@#$(CROSS_COMPILE)$(AR) rcs $@ $^
 
@@ -153,6 +153,8 @@ distclean: $(DIST_CLEAN_MOD) $(DIST_CLEAN_ENV)
 # Tools
 print-%:
 	@echo $* = $($(*))
+
+FORCE:
 
 .PHONY: all main modules env clean distclean
 
