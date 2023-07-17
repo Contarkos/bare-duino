@@ -28,6 +28,7 @@ foo@bar:/opt/avr-gcc-8.5.0-1-x64-linux$ sudo ./permissions.sh
 ```
 
 * That's it ! Your toolchain is ready !
+* This toolchain may be able to compile your code but you cannot use this project to install the binary on WSL2. You can however use the Arduino IDE to upload your HEX file directly. 
 
 ## Compilation and installation
 
@@ -41,7 +42,10 @@ foo@bar:~/bare-duino$ make
 ```
 
 * Upload the binary
-    * Find the COM port of your Arduino
+    * Install the avrdude tool.
+    * Find the COM port of your Arduino. It is usually found under ```/dev/ttyACM0```.
+    * Replace the name of the port in the makefile
+    * Launch ```make install```
 
 ## About
 
