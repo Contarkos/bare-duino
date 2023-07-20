@@ -6,7 +6,7 @@ _BAUDRATE=115200
 if [ -n $1 ]; then
 	_PORT_COM=$1
 else
-	_PORT_COM=3
+	_PORT_COM="S3"
 fi
 
 if [ -n $2 ]; then
@@ -15,5 +15,6 @@ else
 	_FILE_FLASH=/mnt/c/partage_vm/arduino.hex
 fi
 
-avrdude -F -V -c arduino -p ATMEGA328p -P /dev/ttyS${_PORT_COM} -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}
+#avrdude -F -V -c arduino -p ATMEGA328p -P /dev/tty${_PORT_COM} -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}
+avrdude -C /etc/avrdude.conf -c arduino -p atmega328p -P /dev/tty${_PORT_COM} -D -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}:i
 

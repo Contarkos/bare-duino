@@ -67,6 +67,9 @@ OUTPUT_FILES = $(PATH_MAP) $(PATH_HEX)
 ##################################################
 # Compilation variables
 
+SCRIPT_FLASH=./tools/scripts/flash_arduino.sh
+DEVICE_TTY_NAME=ACM0
+
 TOOLCHAIN_DIR=/opt/avr-gcc-8.5.0-1-x64-linux
 
 ARCH = avr
@@ -127,7 +130,7 @@ $(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) FOR
 	@#$(CROSS_COMPILE)$(CXX) $(OBJ_FILES_MAIN) $(LIBS_PATH) $(LIBS) -Xlinker -Map=$(PATH_MAP) -o $@
 
 $(PATH_MAP): $(PATH_BINARY)
-	@echo "       MAP $@"
+	@echo "       MAP $(notdir $@)"
 
 # Get all the object files associated with the library being compiled
 %.a: FORCE
@@ -149,6 +152,9 @@ distclean_%: env/% clean_%
 clean: $(LIST_CLEAN_MOD) $(LIST_CLEAN_ENV)
 
 distclean: $(DIST_CLEAN_MOD) $(DIST_CLEAN_ENV)
+
+install: $(PATH_HEX)
+	@$(SCRIPT_FLASH) $(DEVICE_TTY_NAME) $<
 
 # Tools
 print-%:

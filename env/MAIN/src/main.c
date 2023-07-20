@@ -6,31 +6,27 @@
 /* Local includes */
 #include "uart.h"
 
+#include "main_state.h"
 #include "main_types.h"
+#include "main.h"
 
 /* Defines */
-#define MS_DELAY            3000
-
-#define MAIN_UART_BAUDRATE  115200
+#define MS_DELAY            500U
 
 
 /* Static variables */
-static main_internal_t main_config =
-{
-    .uart_baudrate = MAIN_UART_BAUDRATE,
-    .is_running = MAIN_STATE_INIT,
-};
+static uint8_t test = 0;
 
 /* Static functions declarations */
-static int _main_init(void);
-static int _main_shutdown(void);
-static int _main_loop(void);
+static int8_t _main_init(void);
+static int8_t _main_shutdown(void);
+static int8_t _main_loop(void);
 
 /* Functions */
 
 int main (void)
 {
-    int ret = 0;
+    int8_t ret = 0;
 
     /* Init all the modules */
     if (0 == ret)
@@ -42,33 +38,37 @@ int main (void)
     if (0 == ret)
         _main_shutdown();
 
+    ret = _main_loop();
     return ret;
 }
 
 /* Static functions definitions */
-static int _main_init(void)
+static int8_t _main_init(void)
 {
-    int ret = 0;
+    int8_t ret = 0;
 
     if (0 == ret)
-        ret = uart_init(main_config.uart_baudrate);
+        ret = uart_init(main_get_baudrate());
 
     if (0 == ret)
-        main_config.is_running = MAIN_STATE_RUNNING;
+    {
+        test = 1;
+        main_set_state(MAIN_STATE_RUNNING);
+    }
 
     return ret;
 }
 
-static int _main_shutdown(void)
+static int8_t _main_shutdown(void)
 {
-    int ret = 0;
+    int8_t ret = 0;
 
     return ret;
 }
 
-static int _main_loop(void)
+static int8_t _main_loop(void)
 {
-    int ret = 0;
+    int8_t ret = 0;
     char m[] = "test";
     uint16_t size = 4;
 
@@ -79,7 +79,8 @@ static int _main_loop(void)
      **Set digital pin 13 to output mode */
     DDRB |= _BV(DDB5);
 
-    while (MAIN_STATE_RUNNING == main_config.is_running) {
+    //main_config.is_running = MAIN_STATE_RUNNING;
+    while (MAIN_STATE_RUNNING == main_get_state()) {
         /*Set to one the fifth bit of PORTB to one
          **Set to HIGH the pin 13 */
         PORTB |= _BV(PORTB5);
@@ -89,7 +90,7 @@ static int _main_loop(void)
 
         /*Set to zero the fifth bit of PORTB
          **Set to LOW the pin 13 */
-        PORTB &= ~_BV(PORTB5);
+        PORTB &= (int8_t) ~_BV(PORTB5);
 
         /*Wait 3000 ms */
         _delay_ms(MS_DELAY);
