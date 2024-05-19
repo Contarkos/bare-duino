@@ -16,5 +16,5 @@ else
 fi
 
 #avrdude -F -V -c arduino -p ATMEGA328p -P /dev/tty${_PORT_COM} -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}
-avrdude -C /etc/avrdude.conf -c arduino -p atmega328p -P /dev/tty${_PORT_COM} -D -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}:i
+avrdude -v -C /etc/avrdude.conf -c arduino -p atmega328p -P /dev/tty${_PORT_COM} -D -b ${_BAUDRATE} -U flash:w:${_FILE_FLASH}:i
 
