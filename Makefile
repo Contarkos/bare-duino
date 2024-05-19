@@ -99,6 +99,9 @@ export SUBDIRS_ENV
 export SUBDIRS_MOD
 export SUBDIR_DATA
 
+export LIST_LIBENV
+export LIST_LIBMOD
+
 ##################################################
 # Compilation rules
 
@@ -109,6 +112,9 @@ all: $(OUTPUT_FILES) | /tftpboot/
 	@echo "$(shell date)"
 	@echo "-----------------------------------"
 	@echo " Done"
+
+love:
+	@echo "not war !"
 
 # Include all the file defining the prerequisites for each source file
 -include $(PREREQ_FILES)
@@ -125,7 +131,7 @@ all: $(OUTPUT_FILES) | /tftpboot/
 $(PATH_HEX): $(PATH_BINARY)
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk hex
 
-$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) FORCE | $(SUBDIR_MAIN)/bin
+$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) | $(SUBDIR_MAIN)/bin
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk bin
 	@#$(CROSS_COMPILE)$(CXX) $(OBJ_FILES_MAIN) $(LIBS_PATH) $(LIBS) -Xlinker -Map=$(PATH_MAP) -o $@
 

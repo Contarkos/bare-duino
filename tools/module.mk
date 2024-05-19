@@ -39,6 +39,7 @@ C_CPLUS_FLAGS += -Os -pedantic
 C_CPLUS_FLAGS += -Wswitch-default -Wswitch-enum
 C_CPLUS_FLAGS += -Wunreachable-code -Wconversion -Wcast-qual
 C_CPLUS_FLAGS += -mmcu=atmega328p -DF_CPU=16000000UL
+C_CPLUS_FLAGS += -DARDUINO=10819 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR -MMD
 C_CPLUS_FLAGS += $(INTEG_LOG_LEVEL)
 
 C_FLAGS		+= $(C_CPLUS_FLAGS) -Wstrict-prototypes -std=c99
@@ -73,9 +74,9 @@ all: lib
 # Include all prerequisites
 include $(PRE_C) $(PRE_CXX)
 
-hex: $(HEX)
+hex: $(BIN_DIR)/$(HEX)
 
-bin: $(BIN)
+bin: $(BIN_DIR)/$(BIN)
 
 $(PRE_DIR):
 	@echo "     MKDIR $@"
@@ -97,38 +98,38 @@ $(OBJ_C) $(OBJ_CXX): | $(OBJ_DIR)
 
 $(PRE_C) $(PRE_CXX): | $(PRE_DIR)
 
-$(LIB_DIR)/$(LIB): | $(LIB_DIR)
+#$(LIB_DIR)/$(LIB): | $(LIB_DIR)
 
-$(HEX): | bin_dir
-	@echo "   OBJCOPY $@"
-	@$(CROSS_COMPILE)$(OBJCOPY) -O ihex -R .eeprom $(BIN_DIR)/$(BIN) $(BIN_DIR)/$@
+$(BIN_DIR)/$(HEX): $(BIN_DIR)/$(BIN) | bin_dir
+	@echo "   OBJCOPY $(notdir $@)"
+	@$(CROSS_COMPILE)$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-$(BIN): $(OBJ_C) $(OBJ_CXX) | bin_dir
-	@echo "        LD $@"
-	@$(CROSS_COMPILE)$(CXX) $(OBJ_C) $(OBJ_CXX) $(LIBS_PATH) $(LIBS) -o $(BIN_DIR)/$@
+$(BIN_DIR)/$(BIN): $(OBJ_C) $(OBJ_CXX) $(addprefix $(PWD)/, $(LIST_LIBENV) $(LIST_LIBMOD)) | bin_dir
+	@echo "        LD $(notdir $@)"
+	@$(CROSS_COMPILE)$(CXX) $(C_CPLUS_FLAGS) $^ $(LIBS_PATH) $(LIBS) -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.c
-	@echo "        CC $@"
+	@echo "        CC $(notdir $@)"
 	@$(CROSS_COMPILE)$(CC) $(INCLUDES) $(C_FLAGS) $(DEBUG) -c $< -o $@
 
 $(OBJ_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo "       CXX $@"
+	@echo "       CXX $(notdir $@)"
 	@$(CROSS_COMPILE)$(CXX) $(INCLUDES) $(CPLUS_FLAGS) $(DEBUG) -c $< -o $@
 
 $(PRE_DIR)/%.d: $(SRC_DIR)/%.c
-	@echo "       PRE $@"
+	@echo "       PRE $(notdir $@)"
 	@$(RM) $@
 	@$(CROSS_COMPILE)$(CC) $(INCLUDES) $(C_FLAGS) -MM $< > $@.$$$$; \
 	sed 's#$(subst .c,.o,$(notdir $<))[ :]*#$(OBJ_DIR)/$(subst .c,.o,$(notdir $<)) $@: #g' < $@.$$$$ > $@; \
 	$(RM) $@.$$$$
 
 $(PRE_DIR)/%.d: $(SRC_DIR)/%.cpp
-	@echo "       PRE $@"
+	@echo "       PRE $(notdir $@)"
 	@$(CROSS_COMPILE)$(CXX) $(INCLUDES) $(CPLUS_FLAGS) -MM $< > $@
 
-$(LIB_DIR)/$(LIB): $(OBJ_C) $(OBJ_CXX)
-	@echo "        AR $@"
-	@$(CROSS_COMPILE)$(AR) rcs $(LIB_DIR)/$(LIB) $(OBJ_C) $(OBJ_CXX)
+$(LIB_DIR)/$(LIB): $(OBJ_C) $(OBJ_CXX) | $(LIB_DIR)
+	@echo "        AR $(notdir $@)"
+	@$(CROSS_COMPILE)$(AR) rcs $@ $^
 
 clean:
 	@echo "     CLEAN $(OBJ_DIR)"
