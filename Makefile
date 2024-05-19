@@ -70,7 +70,7 @@ OUTPUT_FILES = $(PATH_MAP) $(PATH_HEX)
 SCRIPT_FLASH=./tools/scripts/flash_arduino.sh
 DEVICE_TTY_NAME=ACM0
 
-TOOLCHAIN_DIR=/opt/avr-gcc-8.5.0-1-x64-linux
+TOOLCHAIN_DIR=/opt/avr8-gnu-toolchain-linux_x86_64
 
 ARCH = avr
 DEBUG = -g
@@ -105,13 +105,13 @@ export LIST_LIBMOD
 ##################################################
 # Compilation rules
 
-all: $(OUTPUT_FILES) | /tftpboot/
-	@echo "        CP $(notdir $(PATH_HEX))"
-	@cp    $(PATH_HEX) /tftpboot/
-	@cp    $(PATH_HEX) /media/sf_partage_vm/
-	@echo "$(shell date)"
-	@echo "-----------------------------------"
-	@echo " Done"
+all: $(OUTPUT_FILES)
+#@echo "        CP $(notdir $(PATH_HEX))"
+#@cp    $(PATH_HEX) /tftpboot/
+#@cp    $(PATH_HEX) /media/sf_partage_vm/
+#@echo "$(shell date)"
+#@echo "-----------------------------------"
+#@echo " Done"
 
 love:
 	@echo "not war !"

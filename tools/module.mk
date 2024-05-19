@@ -4,7 +4,7 @@
 MAKEFLAGS = --no-print-directory
 
 # Toolchain main directory for binaries and includes
-TOOLCHAIN_DIR=/opt/avr-gcc-8.5.0-1-x64-linux
+TOOLCHAIN_DIR=/opt/avr8-gnu-toolchain-linux_x86_64
 
 ARCH = avr
 DEBUG = -g

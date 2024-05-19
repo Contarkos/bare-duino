@@ -1,0 +1,19 @@
+version: "3"
+
+services:
+  avr:
+    image: avr_build:0.0.1
+    container_name: avr
+    volumes:
+      - ~/workspace/bare-duino/:/usr/app/
+    # Pour bash
+    stdin_open: true
+    tty: true
+
+  build:
+    image: avr_build:0.0.1
+    container_name: avr
+    volumes:
+      - ~/workspace/bare-duino/:/usr/app/
+    command: make -j6
+
