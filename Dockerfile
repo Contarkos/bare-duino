@@ -9,4 +9,4 @@ RUN cd /opt/ && \
     rm /opt/avr8-gnu-toolchain-3.7.0.1796-linux.any.x86_64.tar.gz
 
 WORKDIR /usr/app/
-ENTRYPOINT [ "/bin/ash" ]
+#ENTRYPOINT [ "/bin/sh" ]

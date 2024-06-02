@@ -1,8 +1,6 @@
-version: "3"
-
 services:
   avr:
-    image: avr_build:0.0.1
+    image: avr_test:0.0.1
     container_name: avr
     volumes:
       - ~/workspace/bare-duino/:/usr/app/
@@ -11,9 +9,24 @@ services:
     tty: true
 
   build:
-    image: avr_build:0.0.1
-    container_name: avr
-    volumes:
-      - ~/workspace/bare-duino/:/usr/app/
-    command: make -j6
+    extends: avr
+    container_name: avr_build
+    command:
+      - /bin/sh
+      - -c
+      - |
+        make all
 
+  clean:
+    extends: avr
+    container_name: avr_clean
+    command:
+      - /bin/sh
+      - -c
+      - | 
+        make clean
+
+  install:
+    extends: avr
+    container_name: avr_install
+    command: ./flash_arduino.sh
