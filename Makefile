@@ -55,7 +55,7 @@ OBJ_FILES += $(foreach lib,$(LIST_LIBENV) $(LIST_LIBMOD),$(call _get_object_file
 PREREQ_FILES := $(foreach _dir, env/MAIN $(SUBDIRS_ENV) $(SUBDIRS_MOD), $(call _get_prereq_files,$(_dir),.c))
 PREREQ_FILES += $(foreach _dir, env/MAIN $(SUBDIRS_ENV) $(SUBDIRS_MOD), $(call _get_prereq_files,$(_dir),.cpp))
 
-OBJ_FILES_MAIN = $(patsubst $(SUBDIR_MAIN)/src/%.cpp, $(SUBDIR_MAIN)/obj/%.o, $(wildcard $(SUBDIR_MAIN)/src/*.cpp))
+OBJ_FILES_MAIN = $(patsubst $(SUBDIR_MAIN)/src/%.c, $(SUBDIR_MAIN)/obj/%.o, $(wildcard $(SUBDIR_MAIN)/src/*.c))
 
 PATH_BINARY = $(SUBDIR_MAIN)/bin/$(BIN)
 PATH_STRIP  = $(PATH_BINARY).stripped
@@ -131,9 +131,8 @@ love:
 $(PATH_HEX): $(PATH_BINARY)
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk hex
 
-$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) $(OBJ_FILES) $(OBJ_FILES_MAIN) | $(SUBDIR_MAIN)/bin
+$(PATH_BINARY): $(LIST_LIBENV) $(LIST_LIBMOD) | $(SUBDIR_MAIN)/bin
 	@$(MAKE) $(PARALLEL) -C $(SUBDIR_MAIN) -f module.mk bin
-	@#$(CROSS_COMPILE)$(CXX) $(OBJ_FILES_MAIN) $(LIBS_PATH) $(LIBS) -Xlinker -Map=$(PATH_MAP) -o $@
 
 $(PATH_MAP): $(PATH_BINARY)
 	@echo "       MAP $(notdir $@)"
