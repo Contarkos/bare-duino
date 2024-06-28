@@ -103,7 +103,7 @@ static void _uart_write (uint8_t data)
         ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
         {
             *_uart_reg.udr = data;
-            *_uart_reg.ucsra = ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+            *_uart_reg.ucsra = (uint8_t) ( ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0) );
         }
 
         return;
@@ -155,7 +155,7 @@ static void _uart_blink(uint16_t ms)
 
         /*Set to zero the fifth bit of PORTB
          **Set to LOW the pin 13 */
-        PORTB &= (int8_t) ~_BV(PORTB5);
+        PORTB &= (uint8_t) ~_BV(PORTB5);
 
         /*Wait 3000 ms */
         _delay_ms(ms);
@@ -169,12 +169,12 @@ void _uart_tx_irq (void)
 
     /* Send the data */
     *_uart_reg.udr = c;
-    *_uart_reg.ucsra = ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0);
+    *_uart_reg.ucsra = (uint8_t) ( ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0) );
 
     /* disable irq if empty */
     if (_uart_tx_buffer_head == _uart_tx_buffer_tail)
     {
-        *_uart_reg.ucsrb &= ~(1 << UDRIE0);
+        *_uart_reg.ucsrb &= (uint8_t) ~(1 << UDRIE0);
     }
 }
 
