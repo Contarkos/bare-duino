@@ -142,7 +142,7 @@ static int8_t _main_loop(void)
 
         /*Set to zero the fifth bit of PORTB
          **Set to LOW the pin 13 */
-        PORTB &= (int8_t) ~_BV(PORTB5);
+        PORTB &= (uint8_t) ~_BV(PORTB5);
 
         /*Wait 3000 ms */
         _delay_ms(MS_DELAY);

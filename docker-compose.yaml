@@ -1,6 +1,6 @@
 services:
   avr:
-    image: avr_test:0.0.1
+    image: avr_build:0.0.1
     container_name: avr
     volumes:
       - ~/workspace/bare-duino/:/usr/app/
