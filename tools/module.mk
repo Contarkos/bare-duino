@@ -39,7 +39,7 @@ C_CPLUS_FLAGS += -Os -pedantic
 C_CPLUS_FLAGS += -Wswitch-default -Wswitch-enum
 C_CPLUS_FLAGS += -Wunreachable-code -Wconversion -Wcast-qual
 C_CPLUS_FLAGS += -mmcu=atmega328p -DF_CPU=16000000UL
-C_CPLUS_FLAGS += -DARDUINO=10819 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR -MMD
+C_CPLUS_FLAGS += -DARDUINO=10819 -DARDUINO_AVR_UNO -DARDUINO_ARCH_AVR
 C_CPLUS_FLAGS += $(INTEG_LOG_LEVEL)
 
 C_FLAGS		+= $(C_CPLUS_FLAGS) -Wstrict-prototypes -std=c99
