@@ -1,6 +1,7 @@
 services:
   avr:
     image: avr_build:0.0.1
+    user: ${UID}:${GID}
     container_name: avr
     volumes:
       - ~/workspace/bare-duino/:/usr/app/
@@ -25,6 +26,15 @@ services:
       - -c
       - | 
         make clean
+
+  cleanall:
+    extends: avr
+    container_name: avr_cleanall
+    command:
+      - /bin/sh
+      - -c
+      - | 
+        make distclean
 
   install:
     extends: avr
