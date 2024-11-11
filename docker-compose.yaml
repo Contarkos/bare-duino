@@ -1,10 +1,10 @@
 services:
   avr:
     image: avr_build:0.0.1
-    user: ${UID}:${GID}
+    user: ${USERID}:${GROUPID}
     container_name: avr
     volumes:
-      - ~/workspace/bare-duino/:/usr/app/
+      - ${PWD}:/usr/app/
     # Pour bash
     stdin_open: true
     tty: true
@@ -35,6 +35,15 @@ services:
       - -c
       - | 
         make distclean
+
+  custom:
+    extends: avr
+    container_name: avr_custom
+    command:
+      - /bin/sh
+      - -c
+      - | 
+        make ${CUSTOM_CMD}
 
   install:
     extends: avr
