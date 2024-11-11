@@ -104,7 +104,7 @@ docker compose up build
 
 ### Add some extra configuration to avoid doing it all the time
 
-To avoid exporting the variables each time you open a new terminal, you can add these lines to your .bashrc file :
+To avoid exporting the variables each time you open a new terminal, you can add these lines to your `.bashrc` file :
 
 ```shell
 # No need to export them manually now ! 
