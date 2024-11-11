@@ -50,3 +50,65 @@ foo@bar:~/bare-duino$ make
 ## About
 
 We will try to implement basic features like a serial console or drivers for specific devices like a RF transmitter/receiver or bluetooth components.
+
+## Using Docker to build
+
+You can build a docker image that will help you build the binaries.
+
+### Install docker, the proper way
+
+You can find the official instructions [here](https://docs.docker.com/engine/install/ "Official instructions for Docker Engine"). You need the docker compose and the docker buildx plugins so install them as well if it is not already done.
+
+```console
+sudo apt update
+sudo apt install docker-compose-plugin docker-buildx-plugin
+```
+
+Do not forget to add your account to the docker group so that you can run the docker CLI without sudo !
+```console
+# You will need to logout and login again for the change to be applied
+sudo usermod -aG docker <your_username>
+```
+
+### Build the image and tag it
+
+For the compilation to work, you need to build the image used in the docker-compose.yaml and then tag it with the proper name.
+
+```console
+# Move to the repo folder
+cd /path/to/bare-duino
+
+# Build the image and tag it in the same process
+docker buildx build . --tag avr_build:0.0.1
+```
+
+### Compile your binary with your image
+
+Now that your image is ready, you can use it to compile your binary.
+
+```console
+# Export the following variables so that your build is owned by your account
+export USERID=$(id -u)
+export GROUPID=$(id -g)
+
+docker compose up clean
+docker compose up build
+```
+
+### Add some extra configuration to avoid doing it all the time
+
+To avoid exporting the variables each time you open a new terminal, you can add these lines to your .bashrc file :
+
+```shell
+# No need to export them manually now ! 
+export USERID=$(id -u)
+export GROUPID=$(id -g)
+
+# Now the command to build is simply "dcu build"
+alias dcu='docker compose up'
+```
+
+You can build custom targets in the container by calling 
+```console
+CUSTOM_CMD=<target> dcu custom
+```
