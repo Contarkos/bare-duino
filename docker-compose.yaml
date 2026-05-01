@@ -1,6 +1,6 @@
 services:
   avr:
-    image: avr_build:0.0.1
+    image: avr_build:0.0.2
     user: ${USERID}:${GROUPID}
     container_name: avr
     volumes:
@@ -43,9 +43,15 @@ services:
       - /bin/sh
       - -c
       - | 
-        make ${CUSTOM_CMD}
+        make ${_CMD}
 
   install:
     extends: avr
     container_name: avr_install
-    command: ./flash_arduino.sh
+    devices:
+      - /dev/ttyACM0:/dev/ttyACM0
+    command:
+      - /bin/sh
+      - -c
+      - |
+        make install

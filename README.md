@@ -119,3 +119,72 @@ You can build custom targets in the container by calling
 ```shell
 CUSTOM_CMD=<target> dcu custom
 ```
+
+# Accessing Arduino serial console on WSL2
+
+To access the Serial Console on WSL2, you need to redirect the device from Windows to the virtual environment.
+
+All the following instructions have been derived from this blog [here](https://learn.microsoft.com/en-us/windows/wsl/connect-usb).
+
+1) Install and configure usbipd-win
+
+Install the latest release of the `usbipd-win` tool. You can find it under this [link](https://github.com/dorssel/usbipd-win/releases). Pretty straightforward, no gimmicks.
+
+Then, open a powershell console with admin rights and list all USB devices :
+
+```powershell
+usbipd list
+```
+
+It should give you a list of devices currently connected to your computer :
+
+```powershell
+Connected:
+BUSID  VID:PID    DEVICE                                                        STATE
+1-12   1bcf:2b95  Integrated Webcam                                             Not shared
+2-1    2341:0062  Arduino Uno Mini (COM3)                                       Not shared
+```
+
+The important information here is the `BUSID` of our device. In this case, it is `2-1`. We will use that value to bind the device with the following command :
+
+```powershell
+usbipd bind --busid 2-1
+```
+
+On another console, or in VS Code, start WSL.
+
+```batch
+wsl
+```
+
+You can now attach the device to your WSL instance from the Admin Powershell console :
+
+```powershell
+usbipd attach --wsl --busid 2-1
+```
+
+2) Install your binary on the Arduino
+
+Your serial console should now be listed as `/dev/ttyACM0`. You do not need to execute docker to flash your file on the board. Just type : 
+
+```bash
+make install
+```
+
+3) Listen to the flow
+
+On WSL, you can install `screen` to access the console.
+
+```bash
+screen /dev/ttyACM0 9600
+```
+
+To quit a session from `screen`, you can type `Ctrl-A + \` or `Ctrl-A + k`.
+
+## Warning
+
+If you bind the serial console to WSL, it will not be available in Windows anymore. To restore the configuration you need to detach the device in an Admin Powershell console :
+
+```powershell
+usbipd detach --busid 2-1
+```

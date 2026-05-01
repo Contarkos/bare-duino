@@ -6,6 +6,9 @@
 #include <util/atomic.h>
 
 /* Local includes */
+#include "utils.h"
+
+#include "uart_registers.h"
 #include "uart.h"
 
 /* Defines */
@@ -24,9 +27,8 @@ static uint8_t _uart_tx_buffer[UART_SIZE_BUFFER];
 static uint16_t _uart_tx_buffer_head;
 static uint16_t _uart_tx_buffer_tail;
 
-static void _uart_write (uint8_t data);
+static size_t _uart_write (uint8_t data);
 static uint8_t _uart_receive (void);
-static void _uart_blink(uint16_t ms);
 
 void _uart_tx_irq (void);
 
@@ -60,8 +62,9 @@ int8_t uart_init(uart_t_reg *i_reg, uint32_t i_baudrate)
     *_uart_reg.ubrrl = (uint8_t) (brr >> 0);
 
     /* Enable transmitter and receiver */
-    *_uart_reg.ucsrb = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
-    /* Set frame format: 8data, 2stop bit */
+    *_uart_reg.ucsrb  = (1<<RXCIE0) | (1<<RXEN0) | (1<<TXEN0);
+    *_uart_reg.ucsrb &= ~(1<<UDRE0);
+    /* Set frame format: 8data, 2stop biti, no parity */
     *_uart_reg.ucsrc = (1<<USBS0) | (3<<UCSZ00);
 
     return ret;
@@ -69,11 +72,11 @@ int8_t uart_init(uart_t_reg *i_reg, uint32_t i_baudrate)
 
 int8_t uart_send_message(uint8_t *m, uint16_t i_size)
 {
-    int8_t ret = 0;
+    size_t nbw = 0;
     uint16_t ii;
 
-    if (0 == m)
-        ret = -1;
+    if ((0 == m) || (0 == i_size))
+        return -1;
 
 //    _uart_write('h');
 //    _uart_write('e');
@@ -81,33 +84,36 @@ int8_t uart_send_message(uint8_t *m, uint16_t i_size)
 //    _uart_write('l');
 //    _uart_write('o');
 
-    if (0 == ret)
+    for (ii = 0; ii < i_size; ii++)
     {
-        if (i_size > 0)
-        {
-            for (ii = 0; ii < i_size; ii++)
-                _uart_write(m[ii]);
-        }
+        nbw = _uart_write(m[ii]);
+
+        if (1 != nbw)
+            return -2;
     }
 
-    return ret;
+    return 0;
 }
 
-static void _uart_write (uint8_t data)
+static size_t _uart_write (uint8_t data)
 {
+    _do_blink(1000);
+
     //while ( !(*_uart_reg.ucsra & (1 << UDRE0)) );
     /* First check if data register is empty and we have nothing 
        else to write first */
-    if ((_uart_tx_buffer_tail == _uart_tx_buffer_head) && (*_uart_reg.ucsra & (1 << UDRE0)))
-    {
-        ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
-        {
-            *_uart_reg.udr = data;
-            *_uart_reg.ucsra = (uint8_t) ( ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0) );
-        }
+   // if ((_uart_tx_buffer_tail == _uart_tx_buffer_head) && (*_uart_reg.ucsra & (1 << UDRE0)))
+   // {
+   //     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
+   //     {
+   //         *_uart_reg.udr = data;
+   //         *_uart_reg.ucsra = (uint8_t) ( ((*_uart_reg.ucsra) & ((1 << U2X0) | (1 << MPCM0))) | (1 << TXC0) );
+   //     }
 
-        return;
-    }
+   //     return 1;
+   // }
+
+    _do_blink(500);
 
     /* Now we can fill the buffer */
     uint16_t ii = (_uart_tx_buffer_head + 1) % UART_SIZE_BUFFER;
@@ -127,8 +133,10 @@ static void _uart_write (uint8_t data)
         }
     }
 
+    _do_blink(2000);
+
     /* Put the data in the buffer */
-    _uart_tx_buffer[_uart_tx_buffer_tail] = data;
+    _uart_tx_buffer[_uart_tx_buffer_head] = data;
 
     /* Update the head of the buffer atomically to avoid retransmission */
     ATOMIC_BLOCK(ATOMIC_RESTORESTATE)
@@ -136,6 +144,8 @@ static void _uart_write (uint8_t data)
         _uart_tx_buffer_head = ii;
         *_uart_reg.ucsrb |= (1 << UDRIE0);
     }
+
+    return 1;
 }
 
 static uint8_t _uart_receive (void)
@@ -144,21 +154,6 @@ static uint8_t _uart_receive (void)
     while ( !(*_uart_reg.ucsra & (1 << RXC0)) );
 
     return *_uart_reg.udr;
-}
-
-static void _uart_blink(uint16_t ms)
-{
-        PORTB |= _BV(PORTB5);
-
-        /*Wait 3000 ms */
-        _delay_ms(ms);
-
-        /*Set to zero the fifth bit of PORTB
-         **Set to LOW the pin 13 */
-        PORTB &= (uint8_t) ~_BV(PORTB5);
-
-        /*Wait 3000 ms */
-        _delay_ms(ms);
 }
 
 /* ISR */
@@ -179,4 +174,3 @@ void _uart_tx_irq (void)
 }
 
 ISR(USART_UDRE_vect) { _uart_tx_irq(); }
-

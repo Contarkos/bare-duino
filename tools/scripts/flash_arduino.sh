@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 # Update the firmware in the Arduino Mini
 
 _BAUDRATE=115200
